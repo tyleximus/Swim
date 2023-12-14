@@ -1,0 +1,136 @@
+﻿@using Swim.App.Services;
+@using Swim.Shared.Models;
+@inject ISwimService SwimService
+
+<style>
+    .table-row {
+        background-image: linear-gradient(to right, transparent 26%, cyan 86%);
+    }
+
+        .table-row td:nth-child(3) {
+            border-left-width: 1px;
+        }
+
+    .table td:nth-child(1) {
+        text-align: left;
+    }
+
+    .table td:nth-child(2) {
+        text-align: left;
+    }
+
+    .cell-width-primary {
+        width: 12%;
+    }
+
+    .cell-width-secondary {
+        width: 7%;
+    }
+
+    .miss {
+        background-color: white !important;
+    }
+</style>
+
+<h2></h2>
+
+<table class="table table-sm table-hover text-center">
+    <thead style="font-weight: bold;">
+        <tr>
+            <td class="cell-width-secondary" style="text-align: left;">L</td>
+            <td class="cell-width-secondary" style="text-align: left;">S</td>
+            <td class="cell-width-primary">PR</td>
+            <td class="cell-width-primary">B</td>
+            <td class="cell-width-primary">State</td>
+            <td class="cell-width-primary">BB</td>
+            <td class="cell-width-primary">A</td>
+            <td class="cell-width-primary">AGS</td>
+            <td class="cell-width-secondary">AA</td>
+            <td class="cell-width-secondary">AAA</td>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!loadingProgressTimes)
+        {
+            @foreach (var progressTime in progressTimes)
+            {
+                var cellClass = String.Empty;
+                
+                <tr class="table-row">
+                    <td>@progressTime.Length</td>
+                    <td>@progressTime.Stroke</td>
+                    <td>@progressTime.PR</td>
+                    <td class="@progressTime.NagmtBClass">@progressTime.NagmtB</td>
+                    <td class="@progressTime.StateCutClass">@progressTime.StateCut</td>
+                    <td class="@progressTime.NagmtBBClass">@progressTime.NagmtBB</td>
+                    <td class="@progressTime.NagmtAClass">@progressTime.NagmtA</td>
+                    <td class="@progressTime.AgeGroupCutClass">@progressTime.AgeGroupCut</td>
+                    <td class="@progressTime.NagmtAAClass">@progressTime.NagmtAA</td>
+                    <td class="@progressTime.NagmtAAAClass">@progressTime.NagmtAAA</td>
+                </tr>
+            }
+        }
+        @* <tr class="table-row">
+        <td>50</td>
+        <td>Back</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        <td>38.80</td>
+        </tr> *@
+
+    </tbody>
+    @if (loadingAthletes)
+    {
+        <caption>Loading times...</caption>
+    }
+</table>
+
+
+@code {
+    private bool loadingAthletes;
+    private bool loadingProgressTimes;
+    private string athleteID = String.Empty;
+    private Athlete? athlete;
+    private IEnumerable<ProgressTime>? progressTimes;
+
+    [Parameter]
+    public string AthleteID
+    {
+        get
+        {
+            return athleteID;
+        }
+        set
+        {
+            athleteID = value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingAthletes = true;
+        var athleteTask = GetAthlete();
+        var progressTimesTask = GetProgressTimes();
+        await athleteTask;
+        await progressTimesTask;
+    }
+
+    private async Task GetAthlete()
+    {
+        loadingAthletes = true;
+        athlete = await SwimService.GetAthlete(athleteID);
+        loadingAthletes = false;
+    }
+
+    private async Task GetProgressTimes()
+    {
+        loadingProgressTimes = true;
+        progressTimes = await SwimService.GetProgressTimes(athleteID);
+        loadingProgressTimes = false;
+    }
+}
