@@ -8,24 +8,23 @@ using Swim.Api.Classes;
 [ApiController]
 public class ProgressTimeController : ControllerBase
 {
-    private readonly DataContext _dataContext;
+  private readonly DataContext _dataContext;
 
-    public ProgressTimeController(DataContext dataContext)
-    {
-        _dataContext = dataContext;
-    }
+  public ProgressTimeController(DataContext dataContext)
+  {
+    _dataContext = dataContext;
+  }
 
-    [HttpGet("progress-times")]
-    public IActionResult GetProgressTimes()
+  [HttpGet("progress-times/{athleteID}")]
+  public async Task<IActionResult> GetProgressTimes(int athleteID)
+  {
+    try
     {
-        var result = _dataContext.GetProgressTimes();
-        if (result.Any())
-        {
-            return Ok(result);
-        }
-        else
-        {
-            return NoContent();
-        }
+      return Ok(await _dataContext.GetProgressTimes(athleteID));
     }
+    catch(Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+    }
+  }
 }

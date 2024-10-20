@@ -1,0 +1,59 @@
+﻿/* Ensure all the flags are the same size, and centered */
+.flag {
+    width: 2rem;
+    height: 1.5rem;
+    margin: auto;
+}
+
+/* Assign default width to country name column */
+::deep thead .event-type {
+    width: 15rem;
+}
+
+/* Stop country name text from wrapping, and truncate with ellipsis */
+::deep tbody .event-type {
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 0;
+    text-overflow: ellipsis;
+}
+
+/* Stop the last page from collapsing to the number of rows on it */
+::deep tr {
+    height: 1.8rem;
+}
+
+::deep tr td {
+    text-wrap: nowrap;
+}
+
+    /* Subtle stripe effect */
+    ::deep tr:nth-child(even) {
+        background: rgba(238,238,238,0.6);
+    }
+
+/* Magnifying glass */
+::deep .event-type .col-options-button {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> </svg>');
+}
+
+
+.modal-dialog {
+    max-height: 270px;
+    max-width: 480px;
+    margin: 30px auto;
+}
+.modal-body {
+    position: relative;
+    padding: 0px;
+}
+.close {
+    position: absolute;
+    right: -30px;
+    top: 0;
+    z-index: 999;
+    font-size: 2rem;
+    font-weight: normal;
+    color: #fff;
+    opacity: 1;
+}

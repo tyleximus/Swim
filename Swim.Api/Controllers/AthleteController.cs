@@ -3,43 +3,61 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swim.Api.Classes;
+using Swim.Shared.Models;
+using System.Transactions;
 
 [Route("/")]
 [ApiController]
 public class AthleteController : ControllerBase
 {
-    private readonly DataContext _dataContext;
+  private readonly DataContext _dataContext;
 
-    public AthleteController(DataContext dataContext)
-    {
-        _dataContext = dataContext;
-    }
+  public AthleteController(DataContext dataContext)
+  {
+    _dataContext = dataContext;
+  }
 
-    [HttpGet("athletes/{athleteID}")]
-    public IActionResult GetAthlete(string athleteID)
+  [HttpGet("athletes/{athleteID}")]
+  public async Task<ActionResult<Athlete>> GetAthlete(int athleteID)
+  {
+    try
     {
-        var result = _dataContext.GetAthlete(athleteID);
-        if (result != null)
-        {
-            return Ok(result);
-        }
-        else
-        {
-            return NoContent();
-        }
+      var result = await _dataContext.GetAthlete(athleteID);
+      if (result == null)
+      {
+        return NotFound();
+      }
+      return result;
     }
+    catch(Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+    }
+  }
 
-    [HttpGet("athletes")]
-    public IActionResult GetAthletes(string nameFirst = "", string nameLast = "")
+  [HttpGet("athletes")]
+  public async Task<ActionResult> GetAthletes(string firstName = "", string lastName = "")
+  {
+    try
     {
-        var result = _dataContext.GetAthletes(nameFirst, nameLast);
-        if (result.Any())
-        {
-            return Ok(result);
-        }
-        else
-        {
-            return NoContent();
-        }
+      return Ok(await _dataContext.GetAthletes());
     }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+    }
+  }
+
+  [HttpGet("events/{athleteID}")]
+  public async Task<ActionResult> GetEvents(int athleteID)
+  {
+    try
+    {
+      return Ok(await _dataContext.GetEvents(athleteID));
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+    }
+  }
 }

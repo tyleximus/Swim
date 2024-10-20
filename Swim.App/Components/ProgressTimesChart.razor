@@ -4,7 +4,7 @@
 
 <style>
     .table-row {
-        background-image: linear-gradient(to right, transparent 26%, cyan 86%);
+        background-image: linear-gradient(to right, white 13%, cyan 86%);
     }
 
         .table-row td:nth-child(3) {
@@ -32,74 +32,83 @@
     }
 </style>
 
-<h2></h2>
+@* @if (loadingProgressTimes)
+{
+    <h2>Loading athlete information...</h2>
+}
+else if (athlete != null)
+{
+    <h2>@athlete.FirstNamePreferred @athlete.LastName</h2>
+}
+else
+{
+    <h2>No athlete information found.</h2>
+} *@
 
-<table class="table table-sm table-hover text-center">
-    <thead style="font-weight: bold;">
-        <tr>
-            <td class="cell-width-secondary" style="text-align: left;">L</td>
-            <td class="cell-width-secondary" style="text-align: left;">S</td>
-            <td class="cell-width-primary">PR</td>
-            <td class="cell-width-primary">B</td>
-            <td class="cell-width-primary">State</td>
-            <td class="cell-width-primary">BB</td>
-            <td class="cell-width-primary">A</td>
-            <td class="cell-width-primary">AGS</td>
-            <td class="cell-width-secondary">AA</td>
-            <td class="cell-width-secondary">AAA</td>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!loadingProgressTimes)
+<div class="table-responsive">
+    <table class="table table-sm table-hover text-center">
+        <thead style="font-weight: bold;">
+            <tr>
+                <td class="cell-width-secondary" style="text-align: left;">L</td>
+                <td class="cell-width-secondary" style="text-align: left;">S</td>
+                <td class="cell-width-primary">PR</td>
+                <td class="cell-width-primary"><a href="assets/ts-nagm.pdf" target="_blank">B</a></td>
+                <td class="cell-width-primary"><a href="assets/ts-ky.pdf" target="_blank">State</a></td>
+                <td class="cell-width-primary"><a href="assets/ts-nagm.pdf" target="_blank">BB</a></td>
+                <td class="cell-width-primary"><a href="assets/ts-nagm.pdf" target="_blank">A</a></td>
+                <td class="cell-width-primary"><a href="assets/ts-ags.pdf" target="_blank">AGS</a></td>
+                <td class="cell-width-secondary"><a href="assets/ts-nagm.pdf" target="_blank">AA</a></td>
+                <td class="cell-width-secondary"><a href="assets/ts-nagm.pdf" target="_blank">AAA</a></td>
+            </tr>
+        </thead>
+        @if (loadingProgressTimes)
         {
-            @foreach (var progressTime in progressTimes)
-            {
-                var cellClass = String.Empty;
-                
-                <tr class="table-row">
-                    <td>@progressTime.Length</td>
-                    <td>@progressTime.Stroke</td>
-                    <td>@progressTime.PR</td>
-                    <td class="@progressTime.NagmtBClass">@progressTime.NagmtB</td>
-                    <td class="@progressTime.StateCutClass">@progressTime.StateCut</td>
-                    <td class="@progressTime.NagmtBBClass">@progressTime.NagmtBB</td>
-                    <td class="@progressTime.NagmtAClass">@progressTime.NagmtA</td>
-                    <td class="@progressTime.AgeGroupCutClass">@progressTime.AgeGroupCut</td>
-                    <td class="@progressTime.NagmtAAClass">@progressTime.NagmtAA</td>
-                    <td class="@progressTime.NagmtAAAClass">@progressTime.NagmtAAA</td>
-                </tr>
-            }
+            <caption>Loading times...</caption>
         }
-        @* <tr class="table-row">
-        <td>50</td>
-        <td>Back</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        <td>38.80</td>
-        </tr> *@
+        else if (progressTimes != null)
+        {
+            <tbody>
+                @foreach (var progressTime in progressTimes)
+                {
+                    var cellClass = String.Empty;
 
-    </tbody>
-    @if (loadingAthletes)
-    {
-        <caption>Loading times...</caption>
-    }
-</table>
-
+                    <tr class="table-row">
+                        <td>@progressTime.Length</td>
+                        <td>@progressTime.Stroke</td>
+                        @* <td><a href="#" role="button" data-bs-toggle="popover" data-bs-title="@progressTime.Length @progressTime.Stroke PR Details" data-bs-content="Time: @progressTime.PR">@progressTime.PR</a></td> *@
+                        <td class="@progressTime.PRClass"><a href="/events/?eventtype=@progressTime.LcsTypeID">@progressTime.PR</a></td>
+                        <td class="@progressTime.NagmtBClass">@progressTime.NagmtB</td>
+                        <td class="@progressTime.StateCutClass">@progressTime.StateCut</td>
+                        <td class="@progressTime.NagmtBBClass">@progressTime.NagmtBB</td>
+                        <td class="@progressTime.NagmtAClass">@progressTime.NagmtA</td>
+                        <td class="@progressTime.AgeGroupCutClass">@progressTime.AgeGroupCut</td>
+                        <td class="@progressTime.NagmtAAClass">@progressTime.NagmtAA</td>
+                        <td class="@progressTime.NagmtAAAClass">@progressTime.NagmtAAA</td>
+                    </tr>
+                }
+            </tbody>
+        }
+        else
+        {
+            <caption>No data found.</caption>
+        }
+    </table>
+</div>
+<script>
+    $(() => {
+        $('[data-bs-toggle="popover"]').popover();
+    });
+</script>
 
 @code {
     private bool loadingAthletes;
     private bool loadingProgressTimes;
-    private string athleteID = String.Empty;
+    private int athleteID;
     private Athlete? athlete;
     private IEnumerable<ProgressTime>? progressTimes;
 
     [Parameter]
-    public string AthleteID
+    public int AthleteID
     {
         get
         {
@@ -114,9 +123,10 @@
     protected override async Task OnInitializedAsync()
     {
         loadingAthletes = true;
+        loadingProgressTimes = true;
         var athleteTask = GetAthlete();
-        var progressTimesTask = GetProgressTimes();
         await athleteTask;
+        var progressTimesTask = GetProgressTimes();
         await progressTimesTask;
     }
 
@@ -125,12 +135,13 @@
         loadingAthletes = true;
         athlete = await SwimService.GetAthlete(athleteID);
         loadingAthletes = false;
+        StateHasChanged();
     }
 
     private async Task GetProgressTimes()
     {
         loadingProgressTimes = true;
-        progressTimes = await SwimService.GetProgressTimes(athleteID);
+        progressTimes = await SwimService.GetProgressTimes(AthleteID);
         loadingProgressTimes = false;
     }
 }

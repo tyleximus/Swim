@@ -11,8 +11,10 @@ public class ProgressTime
     public int Length { get; set; }
     public string? Stroke { get; set; }
     public string? Course { get; set; }
-    public int MaxAge { get; set; }
+    public string? LcsTypeID { get; set; }
+    public int Age { get; set; }
     public string? PR { get; set; }
+    public string? PRClass { get; set; }
     public string? NagmtB { get; set; }
     public string? NagmtBClass { get; set; }
     public string? NagmtBB { get; set; }

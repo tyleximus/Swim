@@ -12,10 +12,9 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 var apiUrl = builder.Configuration["apiUrl"] ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services
-    .AddScoped<IHttpService, HttpService>()
-    .AddScoped<ILocalStorageService, LocalStorageService>()
-    .AddScoped<ISwimService, SwimService>()
-    //.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-    .AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiUrl) });
+  .AddScoped<IHttpService, HttpService>()
+  .AddScoped<ILocalStorageService, LocalStorageService>()
+  .AddScoped<ISwimService, SwimService>()
+  .AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiUrl) });
 
 await builder.Build().RunAsync();

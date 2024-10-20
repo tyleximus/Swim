@@ -6,25 +6,32 @@ using Swim.Shared.Models;
 
 public interface ISwimService
 {
-    Task<Athlete> GetAthlete(string athleteID);
-    Task<IEnumerable<ProgressTime>> GetProgressTimes(string athleteID);
+  Task<Athlete> GetAthlete(int athleteID);
+  Task<IEnumerable<Event>> GetEvents(int athleteID);
+  Task<IEnumerable<ProgressTime>> GetProgressTimes(int athleteID);
 }
 
 public class SwimService : ISwimService
 {
-    private IHttpService _httpService;
+  private IHttpService _httpService;
 
-    public SwimService(IHttpService httpService)
-    {
-        _httpService = httpService;
-    }
+  public SwimService(IHttpService httpService)
+  {
+    _httpService = httpService;
+  }
 
-    public async Task<IEnumerable<ProgressTime>> GetProgressTimes(string athleteID)
-    {
-        return await _httpService.Get<IEnumerable<ProgressTime>>($"progress-times/");
-    }
-    public async Task<Athlete> GetAthlete(string athleteID)
-    {
-        return await _httpService.Get<Athlete>($"athletes/{athleteID}");
-    }
+  public async Task<Athlete> GetAthlete(int athleteID)
+  {
+    return await _httpService.Get<Athlete>($"athletes/{athleteID}");
+  }
+
+  public async Task<IEnumerable<Event>> GetEvents(int athleteID)
+  {
+    return await _httpService.Get<IEnumerable<Event>>($"events/{athleteID}");
+  }
+
+  public async Task<IEnumerable<ProgressTime>> GetProgressTimes(int athleteID)
+  {
+    return await _httpService.Get<IEnumerable<ProgressTime>>($"progress-times/{athleteID}");
+  }
 }

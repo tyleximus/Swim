@@ -11,37 +11,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class Athlete
 {
     [Key]
-    public string? AthleteID { get; set; }
+    public int AthleteID { get; set; }
 
-    public string? NameFirst { get; set; }
+    public string? FirstName { get; set; }
 
-    public string? NameFirstPreferred { get; set; }
+    public string? FirstNamePreferred { get; set; }
 
-    public string? NameLast { get; set; }
+    public string? LastName { get; set; }
 
-    [Column("GenderTypeID")]
-    public GenderType Gender { get; set; }
+    public char Gender { get; set; }
+
+    public int Age { get; set; }
 
     public DateOnly BirthDate { get; set; }
-
-    [Column("LscTypeID")]
-    public LscType? Lsc { get; set; }
 
     [Column("ClubTypeID")]
     public ClubType? Club { get; set; }
 
+    public string? UsaSwimmingID { get; set; }
+
     public string? SwimCloudID { get; set; }
-}
-
-public enum GenderType
-{
-    Male = 1,
-    Female
-}
-
-public enum LscType
-{
-    KY = 1
 }
 
 public enum ClubType

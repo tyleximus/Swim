@@ -1,0 +1,136 @@
+﻿@using Swim.App.Services;
+@using Swim.Shared.Models;
+
+@inject ISwimService SwimService;
+
+<PageTitle>Events</PageTitle>
+
+<script>
+    $(document).ready(function () {
+
+        // when the modal is opened autoplay it
+        $('#myModal').on('shown.bs.modal', function (e) {
+
+            // set the video src to autoplay and not to show related video. Youtube related video is like a box of chocolates... you never know what you're gonna get
+            // $("#video source").attr('src', $videoSrc + "?autoplay=1&amp;modestbranding=1&amp;showinfo=0");
+            var button = e.relatedTarget;
+            var path = button.getAttribute('data-src');
+            console.log(path);
+            var video = document.getElementById('video');
+            var source = video.getElementsByTagName('source')[0];
+            source.setAttribute('src', path);
+            source.setAttribute('type', 'video/mp4');
+
+            video.load();
+            video.play();
+            console.log({
+                src: source.getAttribute('src'),
+                type: source.getAttribute('type'),
+            });
+        });
+
+        // stop playing the youtube video when I close the modal
+        $('#myModal').on('hide.bs.modal', function (e) {
+            // a poor man's stop video
+            // $("#video source").attr('src', $videoSrc);
+            var video = document.getElementById('video');
+            video.pause();
+            video.currentTime = 0;
+        });
+    });
+</script>
+
+<div class="grid table-responsive">
+    <QuickGrid Items="@FilteredItems" Pagination="@pagination">
+        <TemplateColumn Title="Watch!">
+            @if (context.VideoPath != null)
+            {
+                <button type="button" class="btn btn-primary video-btn" data-bs-toggle="modal" data-src="@(context.VideoPath)" data-bs-target="#myModal">
+                    @*  onclick="@(() => VideoOnClick(context.VideoPath))"> *@
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z" />
+                    </svg>
+                </button>
+            }
+        </TemplateColumn>
+        <TemplateColumn Title="Event" SortBy="@rankSort" Align="Align.Left" InitialSortDirection="SortDirection.Ascending" IsDefaultSortColumn="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <input type="search" class="event-type" autofocus @bind="EventType" @bind:event="oninput" placeholder="Event Type..." />
+                </div>
+            </ColumnOptions>
+            <ChildContent>@(context.LcsTypeID)</ChildContent>
+        </TemplateColumn>
+        @* <PropertyColumn Property="@(c => c.LcsTypeID)" Sortable="true" Class="country-name" Title="Event">
+        <ColumnOptions>
+        <div class="search-box">
+        <input type="search" autofocus @bind="nameFilter" @bind:event="oninput" placeholder="Event Type..." />
+        </div>
+        </ColumnOptions>
+        </PropertyColumn> *@
+        <PropertyColumn Align="Align.Right" Format="m:ss.ff" Property="@(c => c.FinishTime)" Sortable="true" Title="Time" />
+        <PropertyColumn Align="Align.Center" Property="@(c => c.MotivationCut)" Sortable="true" Title="Cuts" />
+        <PropertyColumn Align="Align.Right" Format="MM/dd/yyyy" Property="@(c => c.EventDate)" Sortable="true" Title="Date" />
+        <PropertyColumn Align="Align.Right" Class="" Property="@(c => c.Name)" Sortable="true" Title="Name" />
+    </QuickGrid>
+</div>
+
+<Paginator State="@pagination" />
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                @* <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button> *@
+                <video id="video" width="100%" height="100%" controls>
+                    <source src="" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool loadingEvents;
+    private int athleteID;
+    private Athlete? athlete;
+    private string? eventType;
+
+    [Parameter]
+    public int AthleteID
+    {
+        get { return athleteID; }
+        set { athleteID = value; }
+    }
+
+    [SupplyParameterFromQuery(Name = "eventtype")]
+    public string EventType
+    {
+        get { return eventType ?? String.Empty; }
+        set { eventType = value; }
+    }
+
+    IQueryable<Event>? items;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+
+    GridSort<Event> rankSort = GridSort<Event>
+        .ByAscending(x => x.EventSequence)
+        .ThenAscending(x => x.FinishTime)
+        .ThenDescending(x => x.EventDate);
+
+    IQueryable<Event>? FilteredItems => items?.Where(x => x.LcsTypeID.Contains(EventType, StringComparison.CurrentCultureIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = (await SwimService.GetEvents(AthleteID)).AsQueryable();
+    }
+
+    // private async Task VideoOnClick(string videoPath)
+    // {
+
+    // }
+}
